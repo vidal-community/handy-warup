@@ -1,0 +1,5 @@
+add --from=/new_dir --to=/new_dir
+add --from=/new_file.txt --to=/new_file.txt
+replace --from=update.txt --to=update.txt
+rm --from=/old_dir
+rm --from=/old_file.txt
