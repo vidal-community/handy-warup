@@ -1,16 +1,19 @@
 package com.vidal.handyWarup;
 
-import static com.vidal.handyWarup.Zip.zipAndGet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
-
-import java.io.File;
-import java.io.IOException;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+
+import static com.vidal.handyWarup.Zip.zipAndGet;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.write;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class PatchTest {
 
@@ -174,6 +177,21 @@ public class PatchTest {
 
       assertThat(patched).isDirectory();
       assertThat(patched.listFiles()).isEmpty();
+   }
+
+   @Test
+   public void should_preserve_target_if_batch_execution_fails() throws IOException {
+      File diff = zipAndGet("/brokenDiff", folder);
+      File target = folder.newFolder();
+      File existingFile = new File(target, "foo.txt");
+      write(existingFile.toPath(), "barbaz".getBytes(UTF_8));
+
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Line could not be parsed: i'm not a parseable command!");
+
+      patch.apply(diff, target);
+
+      assertThat(existingFile).hasContent("barbaz");
    }
 
    private static void newDirectory(File target, String dirName) {
