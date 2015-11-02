@@ -1,0 +1,2 @@
+add --from=/foo.txt --to=/foo.txt
+i'm not a parseable command!
