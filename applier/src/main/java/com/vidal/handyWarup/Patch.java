@@ -24,19 +24,17 @@ public class Patch implements BiFunction<File, File, File> {
    private final Map<Pattern, Function<Matcher, Command>> commandFactory;
    private final FsDeepCopy deepCopy;
    private final FsDeepRemove deepRemove;
-   private final long timestamp;
 
    public Patch() {
       deepCopy = new FsDeepCopy();
       deepRemove = new FsDeepRemove();
-      timestamp = new Date().getTime();
       commandFactory = new HashMap<>();
       commandFactory.put(
-         Pattern.compile("(?:add|replace) --from=/?(.*) --to=/?(.*)"),
-         matcher -> new AddCommand(Paths.get(matcher.group(1)), Paths.get(matcher.group(2))));
+            Pattern.compile("(?:add|replace) --from=/?(.*) --to=/?(.*)"),
+            matcher -> new AddCommand(Paths.get(matcher.group(1)), Paths.get(matcher.group(2))));
       commandFactory.put(
-         Pattern.compile("rm --from=/?(.*)"),
-         matcher -> new RmCommand(Paths.get(matcher.group(1))));
+            Pattern.compile("rm --from=/?(.*)"),
+            matcher -> new RmCommand(Paths.get(matcher.group(1))));
    }
 
    public static void main(String[] args) {
@@ -73,7 +71,7 @@ public class Patch implements BiFunction<File, File, File> {
          throw new RuntimeException(e);
       }
 
-      return move(appliedDirectory, targetDirectory.toPath());
+      return move(appliedDirectory, targetPath);
    }
 
    private void assertTarget(File targetDirectory) {
@@ -83,14 +81,11 @@ public class Patch implements BiFunction<File, File, File> {
       if (!targetDirectory.canWrite()) {
          throw new IllegalArgumentException("target must be writable");
       }
-      if (!targetDirectory.canRead()) {
-         throw new IllegalArgumentException("target must be readable");
-      }
    }
 
    private Path copyTarget(Path targetDirectory) {
       try {
-         Path tempDirectory = createTempDirectory("handy-warup-" + timestamp);
+         Path tempDirectory = createTempDirectory("handy-warup-" + new Date().getTime());
          deepCopy.accept(targetDirectory, tempDirectory);
          return tempDirectory;
       } catch (IOException e) {
