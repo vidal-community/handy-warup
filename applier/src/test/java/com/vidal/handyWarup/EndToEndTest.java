@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Locale;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +43,7 @@ public class EndToEndTest {
 
       assertThat(returnStatus).isZero();
 
-      File diff = new File("handy-warup-diff.zip");
+      File diff = new File("target", "handy-warup-diff.zip");
       File unzippedOldWar = unzip(oldWarFile);
 
       patch.apply(diff, unzippedOldWar);
@@ -66,8 +64,12 @@ public class EndToEndTest {
    private int generateDiff(File newWarFile, File oldWarFile) throws URISyntaxException, IOException, InterruptedException {
       File mkdiff = loadGenerator();
       return new ProcessBuilder(mkdiff.getAbsolutePath(),
+            "-n",
             newWarFile.getAbsolutePath(),
-            oldWarFile.getAbsolutePath())
+            "-o",
+            oldWarFile.getAbsolutePath(),
+            "-t",
+            "handy-warup-diff")
             .start()
             .waitFor();
    }

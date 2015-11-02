@@ -32,6 +32,7 @@ function main() {
 
    local archive_war_new=$1
    local archive_war_old=$2
+   local artifact=$3
    local war_new=$(mktemp -d)
    local war_old=$(mktemp -d)
    local diff_file=$(mktemp)
@@ -41,7 +42,6 @@ function main() {
    local batch_file=$(mktemp)
    local new_files=$(mktemp)
    local target=$(mktemp -d)
-   local artifact=handy-warup-diff
    TMP_FILES="${war_new} ${war_old} ${diff_file} ${to_add} ${to_update} ${to_delete} ${batch_file} ${new_files} ${target}"
 
    unzip -q ${archive_war_new} -d ${war_new}
@@ -74,20 +74,55 @@ function main() {
    cp ${batch_file} ./batch.warup
    zip -q ${artifact} -r .
    popd
-   mv ${target}/${war_new}/${artifact}.zip .
+   mkdir target
+   mv ${target}/${war_new}/${artifact}.zip ./target
    
    function clean {
       rm -rf ${TMP_FILES}
       unset TMP_FILES
+      unset NEW_WAR
+      unset OLD_WAR
+      unset TARGET
    }
    
    trap clean EXIT
 }
 
+function usage {
+   echo "$0 -n /source_archive.zip -o /target_archive.zip -t /diff"
+   echo "-n source archive path"
+   echo "-o target archive path"
+   echo "-t diff artifact name"
+   echo "-h this help"
+}
+
 TMP_FILES=
+NEW_WAR=
+OLD_WAR=
+TARGET=
 
-main ${1} ${2}
+while getopts "n:o:t:h" option
+do
+   case $option in
+      n) NEW_WAR=$OPTARG
+      ;;
+      o) OLD_WAR=$OPTARG
+      ;;
+      t) TARGET=$OPTARG
+      ;;
+      h) usage
+         exit 0
+      ;;
+   esac
+done
 
-exit 0
+if [[ -n ${NEW_WAR} ]] && [[ -n ${OLD_WAR} ]] && [[ -n ${TARGET} ]]; then
+   main ${NEW_WAR} ${OLD_WAR} ${TARGET}
+   exit 0
+else
+   usage
+   exit 1
+fi
+
 
 
