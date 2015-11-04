@@ -1,9 +1,16 @@
 # Handy Warup
 
+![Handy Warup](assets/logo_small.png)
+
 [![Build Status](https://travis-ci.org/vidal-community/handy-warup.svg?branch=master)](https://travis-ci.org/vidal-community/handy-warup)
 [![Coverage Status](https://coveralls.io/repos/vidal-community/handy-warup/badge.svg?branch=master&service=github)](https://coveralls.io/github/vidal-community/handy-warup?branch=master)
 
+
 ## Handy what?
+
+> Diff once, apply everywhere.
+>
+> -- <cite>Guybrush Threepwood</cite>
 
 Handy Warup is a patch generator/applier written in Java.
 The idea is to execute file operations, described in a specific
