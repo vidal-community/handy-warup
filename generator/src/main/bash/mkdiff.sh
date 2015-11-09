@@ -72,7 +72,7 @@ function main() {
 
    pushd ${target}/${war_new}
    cp ${batch_file} ./batch.warup
-   zip -q ${artifact} -r .
+   zip -q ${artifact}.zip -r .
    popd
    mkdir target
    mv ${target}/${war_new}/${artifact}.zip ./target
