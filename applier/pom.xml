@@ -81,7 +81,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.vidal.handyWarup.Patch</mainClass>
+                                    <mainClass>com.vidal.handyWarup.HandyWarup</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

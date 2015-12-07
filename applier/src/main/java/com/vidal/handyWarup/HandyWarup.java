@@ -16,16 +16,18 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static java.nio.file.Files.createTempDirectory;
 
-public class Patch implements BiFunction<File, File, File> {
+public class HandyWarup implements BiFunction<File, File, File> {
 
    private final Map<Pattern, Function<Matcher, Command>> commandFactory;
    private final FsDeepCopy deepCopy;
    private final FsDeepRemove deepRemove;
 
-   public Patch() {
+   public HandyWarup() {
       deepCopy = new FsDeepCopy();
       deepRemove = new FsDeepRemove();
       commandFactory = new HashMap<>();
@@ -43,7 +45,15 @@ public class Patch implements BiFunction<File, File, File> {
                 "Expecting diff and target paths as arguments"
            );
        }
-       new Patch().apply(new File(args[0]), new File(args[1]));
+       new HandyWarup().apply(new File(args[0]), new File(args[1]));
+   }
+
+   public boolean accepts(File file) {
+      try {
+         return new ZipFile(file).getEntry("batch.warup") != null;
+      } catch (IOException e) {
+         return false;
+      }
    }
 
    @Override

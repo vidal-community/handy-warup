@@ -15,25 +15,20 @@ import static java.nio.file.Files.write;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
-public class PatchTest {
+public class HandyWarupTest {
 
-   @Rule
-   public TemporaryFolder folder = new TemporaryFolder();
-
-   @Rule
-   public ExpectedException thrown = ExpectedException.none();
-   private Patch patch = new Patch();
-
+   @Rule public TemporaryFolder folder = new TemporaryFolder();
+   @Rule public ExpectedException thrown = ExpectedException.none();
+   private HandyWarup handyWarup = new HandyWarup();
 
    @Test
    public void should_apply_empty_patch_on_empty_target() throws Exception {
       File diff = new File(getClass().getResource("/emptyDiff.zip").toURI());
       File target = folder.newFolder();
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
-      assertThat(patched).exists()
-            .isDirectory();
+      assertThat(patched).exists().isDirectory();
       assertThat(patched.listFiles()).isEmpty();
 
    }
@@ -45,7 +40,7 @@ public class PatchTest {
 
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("could not find patch file");
-      patch.apply(diff, target);
+      handyWarup.apply(diff, target);
    }
 
    @Test
@@ -55,7 +50,7 @@ public class PatchTest {
 
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("could not find diff file");
-      patch.apply(diff, target);
+      handyWarup.apply(diff, target);
    }
 
    @Test
@@ -66,7 +61,7 @@ public class PatchTest {
 
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("could not find target to apply to");
-      patch.apply(diff, target);
+      handyWarup.apply(diff, target);
    }
 
 
@@ -79,7 +74,7 @@ public class PatchTest {
 
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("target must be writable");
-      patch.apply(diff, target);
+      handyWarup.apply(diff, target);
    }
 
 
@@ -88,7 +83,7 @@ public class PatchTest {
       File diff = zipAndGet("/fileAdditionDiff", folder);
       File target = folder.newFolder();
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.listFiles())
@@ -104,7 +99,7 @@ public class PatchTest {
       File target = folder.newFolder();
       newFile(target, "hello.txt");
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.listFiles())
@@ -118,7 +113,7 @@ public class PatchTest {
       File diff = zipAndGet("/directoryAdditionDiff", folder);
       File target = folder.newFolder();
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.toPath().resolve("new_directory/Hello.txt")).hasContent("hello world!");
@@ -130,7 +125,7 @@ public class PatchTest {
       File target = folder.newFolder();
       newFile(target, "hello.txt");
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.listFiles())
@@ -144,7 +139,7 @@ public class PatchTest {
       File diff = zipAndGet("/directoryReplacementDiff", folder);
       File target = folder.newFolder();
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.toPath().resolve("new_directory/Hello.txt")).hasContent("hello world!");
@@ -156,7 +151,7 @@ public class PatchTest {
       File target = folder.newFolder();
       newFile(target, "hello.txt");
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.listFiles()).isEmpty();
@@ -173,7 +168,7 @@ public class PatchTest {
       newDirectory(target, "old_dir/other/very/nested");
       newFile(target, "old_dir/other/very/nested/hello.txt");
 
-      File patched = patch.apply(diff, target);
+      File patched = handyWarup.apply(diff, target);
 
       assertThat(patched).isDirectory();
       assertThat(patched.listFiles()).isEmpty();
@@ -189,9 +184,42 @@ public class PatchTest {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Line could not be parsed: i'm not a parseable command!");
 
-      patch.apply(diff, target);
+      handyWarup.apply(diff, target);
 
       assertThat(existingFile).hasContent("barbaz");
+   }
+
+   @Test
+   public void should_accept_valid_handy_warup_archive() {
+      File diff = zipAndGet("/acceptValidArchive", folder);
+
+      assertThat(handyWarup.accepts(diff)).isTrue();
+   }
+
+   @Test
+   public void should_not_accept_invalid_handy_warup_archive() {
+      File diff = zipAndGet("/invalidArchive", folder);
+
+      assertThat(handyWarup.accepts(diff)).isFalse();
+   }
+
+   @Test
+   public void should_not_accept_handy_warup_archive_with_mislocated_batch_file() {
+      File diff = zipAndGet("/invalidBatchLocationArchive", folder);
+
+      assertThat(handyWarup.accepts(diff)).isFalse();
+   }
+
+   @Test
+   public void should_not_accept_non_archive_file() throws IOException {
+      File notAZip = folder.newFile();
+
+      assertThat(handyWarup.accepts(notAZip)).isFalse();
+   }
+
+   @Test
+   public void should_not_accept_non_existing_file() throws IOException {
+      assertThat(handyWarup.accepts(new File("salut c'est eddy mitchell"))).isFalse();
    }
 
    private static void newDirectory(File target, String dirName) {

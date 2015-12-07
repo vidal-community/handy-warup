@@ -20,7 +20,7 @@ public class EndToEndTest {
 
    @Rule
    public TemporaryFolder folder = new TemporaryFolder();
-   private Patch patch = new Patch();
+   private HandyWarup patch = new HandyWarup();
 
    @Test
    public void applying_the_diff_should_result_to_original_directory() throws Exception {
