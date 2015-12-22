@@ -54,6 +54,12 @@ public class HandyWarup implements BiFunction<File, File, File> {
        new HandyWarup().apply(new File(args[0]), new File(args[1]));
    }
 
+   /**
+    * Tells whether a file is a valid Handy Warup update package.
+    *
+    * @param file file to test
+    * @return {@code true} if the file is valid, {@code false} otherwise
+    */
    public boolean accepts(File file) {
       try {
          return new ZipFile(file).getEntry("batch.warup") != null;
@@ -62,6 +68,17 @@ public class HandyWarup implements BiFunction<File, File, File> {
       }
    }
 
+   /**
+    * Applies the specified update to the specified directory.
+    *
+    * While not mandatory, calling {@link #accepts(File)} is strongly recommended
+    * in order to make sure {@code zippedDiff} is a valid update archive.
+    *
+    * @param zippedDiff update archive to extract and apply
+    * @param targetDirectory archive apply target
+    * @return {@link File} instance that points to the modified specified installation path
+    * @throws HandyWarupException if a problem occurs at any step
+    */
    @Override
    public File apply(File zippedDiff, File targetDirectory) {
       return applyPatch(zippedDiff, targetDirectory);
