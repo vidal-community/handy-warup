@@ -1,7 +1,14 @@
 package com.vidal.handyWarup;
 
+import com.vidal.handyWarup.errors.CommandParsingException;
+import com.vidal.handyWarup.errors.HandyWarupException;
+import com.vidal.handyWarup.errors.NoUpdateDescriptorException;
+import com.vidal.handyWarup.errors.TargetDirectoryPermissionException;
+import com.vidal.handyWarup.errors.TemporaryCopyException;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +23,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static java.nio.file.Files.createTempDirectory;
@@ -71,14 +77,16 @@ public class HandyWarup implements BiFunction<File, File, File> {
       File batchFile = Arrays.asList(unzipped.toFile().listFiles()).stream()
             .filter(file -> file.getName().equals("batch.warup"))
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("could not find patch file"));
+            .orElseThrow(() -> new NoUpdateDescriptorException("could not find patch file"));
 
       try (BufferedReader reader = new BufferedReader(new FileReader(batchFile))) {
          reader.lines()
-               .map(this::parseCommandLine)
-               .forEach(command -> command.accept(unzipped, appliedDirectory));
+            .map(this::parseCommandLine)
+            .forEach(command -> command.accept(unzipped, appliedDirectory));
+      } catch (FileNotFoundException e) {
+         throw new NoUpdateDescriptorException(e);
       } catch (IOException e) {
-         throw new RuntimeException(e);
+         throw new HandyWarupException(e);
       }
 
       return move(appliedDirectory, targetPath);
@@ -86,10 +94,10 @@ public class HandyWarup implements BiFunction<File, File, File> {
 
    private void assertTarget(File targetDirectory) {
       if (!targetDirectory.exists()) {
-         throw new IllegalArgumentException("could not find target to apply to");
+         throw new TargetDirectoryPermissionException("could not find target to apply to");
       }
       if (!targetDirectory.canWrite()) {
-         throw new IllegalArgumentException("target must be writable");
+         throw new TargetDirectoryPermissionException("target must be writable");
       }
    }
 
@@ -99,7 +107,7 @@ public class HandyWarup implements BiFunction<File, File, File> {
          deepCopy.accept(targetDirectory, tempDirectory);
          return tempDirectory;
       } catch (IOException e) {
-         throw new RuntimeException(e.getMessage(), e);
+         throw new TemporaryCopyException(e.getMessage(), e);
       }
    }
 
@@ -115,7 +123,7 @@ public class HandyWarup implements BiFunction<File, File, File> {
             .filter(Map.Entry::getKey)
             .map(entry -> entry.getValue().get())
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Line could not be parsed: " + line));
+            .orElseThrow(() -> new CommandParsingException("Line could not be parsed: " + line));
    }
 
    private File move(Path appliedDirectory, Path targetDirectory) {

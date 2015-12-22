@@ -1,5 +1,7 @@
 package com.vidal.handyWarup;
 
+import com.vidal.handyWarup.errors.TemporaryCopyException;
+
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -16,7 +18,7 @@ public class FsDeepCopy implements BiConsumer<Path, Path> {
       try {
          Files.walkFileTree(source, new DeepCopyVisitor(source, target));
       } catch (IOException e) {
-         throw new RuntimeException("Unable to deep copy " + source + " to " + target, e);
+         throw new TemporaryCopyException("Unable to deep copy " + source + " to " + target, e);
       }
    }
 

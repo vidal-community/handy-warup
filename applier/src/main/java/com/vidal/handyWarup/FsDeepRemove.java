@@ -1,5 +1,7 @@
 package com.vidal.handyWarup;
 
+import com.vidal.handyWarup.errors.PathDeletionException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +14,7 @@ public class FsDeepRemove implements Consumer<Path> {
       File filePath = path.toFile();
       if (filePath.isDirectory()) {
          for (File p : filePath.listFiles()) {
-            accept(p.toPath()); // recursive
+            accept(p.toPath());
          }
       }
       delete(path);
@@ -22,7 +24,7 @@ public class FsDeepRemove implements Consumer<Path> {
       try {
          Files.delete(path);
       } catch (IOException e) {
-         throw new RuntimeException("Could not delete " + path, e);
+         throw new PathDeletionException("Could not delete " + path, e);
       }
    }
 }

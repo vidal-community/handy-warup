@@ -1,5 +1,9 @@
 package com.vidal.handyWarup;
 
+import com.vidal.handyWarup.errors.CommandParsingException;
+import com.vidal.handyWarup.errors.NoUpdateDescriptorException;
+import com.vidal.handyWarup.errors.TargetDirectoryPermissionException;
+import com.vidal.handyWarup.errors.UpdateUnzipException;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +42,7 @@ public class HandyWarupTest {
       File diff = new File(getClass().getResource("/invalidDiff.zip").toURI());
       File target = folder.newFolder();
 
-      thrown.expect(IllegalArgumentException.class);
+      thrown.expect(NoUpdateDescriptorException.class);
       thrown.expectMessage("could not find patch file");
       handyWarup.apply(diff, target);
    }
@@ -48,7 +52,7 @@ public class HandyWarupTest {
       File diff = new File("qsdfklsjdfmlj");
       File target = folder.newFolder();
 
-      thrown.expect(IllegalArgumentException.class);
+      thrown.expect(UpdateUnzipException.class);
       thrown.expectMessage("could not find diff file");
       handyWarup.apply(diff, target);
    }
@@ -59,7 +63,7 @@ public class HandyWarupTest {
       File target = new File("foobar");
 
 
-      thrown.expect(IllegalArgumentException.class);
+      thrown.expect(TargetDirectoryPermissionException.class);
       thrown.expectMessage("could not find target to apply to");
       handyWarup.apply(diff, target);
    }
@@ -72,7 +76,7 @@ public class HandyWarupTest {
       assumeTrue(target.setWritable(false));
 
 
-      thrown.expect(IllegalArgumentException.class);
+      thrown.expect(TargetDirectoryPermissionException.class);
       thrown.expectMessage("target must be writable");
       handyWarup.apply(diff, target);
    }
@@ -181,7 +185,7 @@ public class HandyWarupTest {
       File existingFile = new File(target, "foo.txt");
       write(existingFile.toPath(), "barbaz".getBytes(UTF_8));
 
-      thrown.expect(IllegalArgumentException.class);
+      thrown.expect(CommandParsingException.class);
       thrown.expectMessage("Line could not be parsed: i'm not a parseable command!");
 
       handyWarup.apply(diff, target);
