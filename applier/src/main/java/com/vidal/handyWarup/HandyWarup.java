@@ -61,8 +61,8 @@ public class HandyWarup implements BiFunction<File, File, File> {
     * @return {@code true} if the file is valid, {@code false} otherwise
     */
    public boolean accepts(File file) {
-      try {
-         return new ZipFile(file).getEntry("batch.warup") != null;
+      try(ZipFile zipFile = new ZipFile(file)) {
+         return zipFile.getEntry("batch.warup") != null;
       } catch (IOException e) {
          return false;
       }

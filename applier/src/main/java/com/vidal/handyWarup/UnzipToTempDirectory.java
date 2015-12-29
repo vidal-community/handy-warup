@@ -50,12 +50,10 @@ public class UnzipToTempDirectory implements Function<File, Path> {
    }
 
    private Path tempDirectory() {
-      Path extractDir;
       try {
-         extractDir = Files.createTempDirectory("handy-warup");
+         return Files.createTempDirectory("handy-warup");
       } catch (IOException e) {
          throw new UpdateUnzipException(e.getMessage(), e);
       }
-      return extractDir;
    }
 }
