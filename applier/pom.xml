@@ -18,7 +18,7 @@
        <dependency>
            <groupId>fr.vidal.oss</groupId>
            <artifactId>handy-warup-generator</artifactId>
-           <version>0.1-SNAPSHOT</version>
+           <version>${project.version}</version>
            <scope>test</scope>
        </dependency>
       <dependency>
@@ -40,7 +40,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -51,15 +50,6 @@
                 </executions>
             </plugin>
         </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.eluder.coveralls</groupId>
-                    <artifactId>coveralls-maven-plugin</artifactId>
-                    <version>4.0.0</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <profiles>
