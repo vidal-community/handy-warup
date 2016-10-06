@@ -9,6 +9,7 @@
 
    <name>handy-warup</name>
    <url>https://github.com/vidal-community/handy-warup</url>
+   <description>A patch generator/applier written in Java</description>
 
    <properties>
       <encoding>UTF-8</encoding>
