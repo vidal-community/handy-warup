@@ -96,6 +96,8 @@ function usage {
    echo "-h this help"
 }
 
+LC_ALL=C
+
 TMP_FILES=
 NEW_WAR=
 OLD_WAR=
